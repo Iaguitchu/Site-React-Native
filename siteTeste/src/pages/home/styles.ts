@@ -15,5 +15,10 @@ export const styles = StyleSheet.create({
   selected:{
     color:"#fff",
     marginTop:42,
+  },
+  label:{
+    color: 'white',
+    marginTop: 20,
+    marginLeft: 10,
   }
 });

@@ -1,91 +1,136 @@
-import React, { useState } from "react";
-import { View, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Button } from "react-native";
 import { styles } from "./styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
+import Lp from "../componentes/listaPlana";
 
 LocaleConfig.locales["pt-br"] = ptBR;
 LocaleConfig.defaultLocale = "pt-br";
 
 export function Home() {
-  const [startDate, setStartDate] = useState<string | null>(null);''
+  const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [selectedMold, setSelectedMold] = useState<{ id: string; color: string } | null>(null);
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
+  const [savedIntervals, setSavedIntervals] = useState<{ start: string; end: string; color: string }[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+
+  const moldes = [
+    { id: "01", desc: "Molde Uva 20cm", color: "#FF5733", dataInicio: '2025-02-17', dataFim: '2025-02-19'},
+    { id: "02", desc: "Molde Tapoer", color: "#33FF57", dataInicio: null, dataFim: null}, 
+    { id: "03", desc: "Bandeja de Ovo", color: "#3357FF", dataInicio: null, dataFim: null},
+    { id: "04", desc: "Bandeja de Ovo2", color: "red",  dataInicio: null, dataFim: null},
+  ];
+
+  
 
   const onDayPress = (day: DateData) => {
+    if (!selectedMold) {
+      alert("Selecione um molde antes de escolher as datas!");
+      return;
+    }
+  
+    if (selectedDays.includes(day.dateString)) {
+      alert("Esse dia já está selecionado para outro molde!");
+      return;
+    }
+  
     if (!startDate) {
-      // Define a primeira data
       setStartDate(day.dateString);
-      setMarkedDates({
-        [day.dateString]: {
-          startingDay: true,
-          color: "#e95430",
-          textColor: "white",
-        },
-      });
-    } else if (!endDate){
+    } 
+    else if (!endDate) {
+      if (day.dateString < startDate) {
+        setStartDate(day.dateString);
+        return;
+      } 
+      else if (day.dateString === startDate) {
+        return;
+      }
+      
+      let teste1 = new Date(startDate)
+      let teste2 = new Date(day.dateString)
 
-        // verifica se a data selecionada é menor que a data inicial ssss
-        if (day.dateString < startDate) {
-            setStartDate(day.dateString);
-            setMarkedDates({
-              [day.dateString]: {
-                startingDay: true,
-                color: "#e95430",
-                textColor: "white",
-              },
-            });
-            return;
-          // verifica se a data selecionada é igual a data inicial
-          }else if (day.dateString == startDate) {
-            return;
-          }
-          
-      // Define a data final e preenche o intervalo
+      while(teste1 <= teste2){
+        let dateStr = teste1.toISOString().split("T")[0];
+        if(selectedDays.includes(dateStr)){
+          alert(`Dia ${dateStr} já cadastrado`);
+          setStartDate(null)
+          return;
+        }
+        teste1.setDate(teste1.getDate() + 1);
+      }
+
+      
+
       setEndDate(day.dateString);
-      let newMarkedDates: { [key: string]: any } = { ...markedDates };
+      saveInterval(startDate, day.dateString, selectedMold.color);
+    } 
+    else if (day.dateString === startDate) {
+      setEndDate(null);
+    }
+    else {
+      setStartDate(day.dateString);
+      setEndDate(null);
+    }
+  };
+  
+  
+  
+  const saveInterval = (start: string, end: string, color: string) => {
+    const newInterval = { start, end, color };
+    const updatedIntervals = [...savedIntervals, newInterval];
+    setSavedIntervals(updatedIntervals);
+    atualizaCalendario(updatedIntervals);
+  };
 
-      let currentDate = new Date(startDate);
-      let finalDate = new Date(day.dateString);
+  const atualizaCalendario = (intervals: { start: string; end: string; color: string }[]) => {
+    let newMarkedDates: { [key: string]: any } = { ...markedDates };
+    let allSelectedDays = [...selectedDays];
+
+    intervals.forEach(({ start, end, color }) => {
+      let currentDate = new Date(start);
+      let finalDate = new Date(end);
 
       while (currentDate <= finalDate) {
         let dateStr = currentDate.toISOString().split("T")[0];
-        if (dateStr != startDate || dateStr != day.dateString) {
-            newMarkedDates[dateStr] = {
-              color: "#ed7a5e",
-              textColor: "white",
-            };
-          }
+        newMarkedDates[dateStr] = {
+          startinDay: true,
+          color: color,
+          textColor: "white",
+        };
+
+        allSelectedDays.push(dateStr);
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      newMarkedDates[startDate] = {
+      newMarkedDates[start] = {
         startingDay: true,
-        color: "#e95430",
+        color: color,
         textColor: "white",
       };
-      newMarkedDates[day.dateString] = {
-        endingDay: true,
-        color: "#e95430",
-        textColor: "white",
-      };
-
-    //   console.log(newMarkedDates);
       setMarkedDates(newMarkedDates);
-    } else {
-      // Reseta tudo e escolhe nova data inicial
-      setStartDate(day.dateString);
-      setEndDate(null);
-      setMarkedDates({
-        [day.dateString]: {
-          startingDay: true,
-          color: "#e95430",
-          textColor: "white",
-        },
-      });
-    }
+      newMarkedDates[end] = {
+        endingDay: true,
+        color: color,
+        textColor: "white",
+      };
+    });
+
+    setMarkedDates(newMarkedDates);
+    setSelectedDays(allSelectedDays);
   };
 
+  useEffect(() => {
+    moldes.forEach((datas) => { 
+      if (datas.dataInicio && datas.dataFim) {
+        atualizaCalendario([{ start: datas.dataInicio, end: datas.dataFim, color: datas.color }]);
+        console.log('oi')
+      }
+    });
+  }, []); // [] só roda quando a pagina carrega
+
+  console.log(selectedDays)
   return (
     <View style={styles.container}>
       <Calendar
@@ -107,11 +152,15 @@ export function Home() {
         }}
       />
 
-    <Text style={styles.selected}>
+      <Text style={styles.selected}>
         {startDate && !endDate ? `Início: ${startDate}` : ""}
         {startDate && endDate ? `Início: ${startDate}  |  Fim: ${endDate}` : ""}
       </Text>
 
+      {moldes.map((molde) => (
+        <Button key={molde.id} title={molde.desc} color={molde.color} onPress={() => setSelectedMold(molde)} />
+      ))}
+      
     </View>
   );
 }
