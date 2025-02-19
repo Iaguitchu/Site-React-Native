@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
-import { styles } from "./styles";
+import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
 
