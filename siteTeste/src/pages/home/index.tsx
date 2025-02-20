@@ -11,8 +11,9 @@ export function Maquina() {
   const navigation = useNavigation<NavigationProps>(); // Aplica a tipagem
 
   const handleNavigateToCadastroMolde = () => {
-    navigation.navigate("CadastrarMolde"); // Navega para a tela de Cadastro de Molde
+    navigation.navigate("CadastrarMolde", { maquinas }); // 🔥 Agora estamos passando a lista!
   };
+  
 
   const handleNavigateToAgenda = (op: string, serie: string, color: string, moldes2: [string, string][]) => {
     navigation.navigate("Agenda", { op, serie, color, moldes2 }); // Navega para a Agenda passando os dados
