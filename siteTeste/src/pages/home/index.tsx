@@ -1,10 +1,14 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { NavegacaoTelas } from "../../types"; // Importando os tipos
 import { styles } from "../home/styles";
 
+type NavigationProps = StackNavigationProp<NavegacaoTelas, "Maquina">;
+
 export function Maquina() {
-  const navigation = useNavigation(); // Adiciona a navegação
+  const navigation = useNavigation<NavigationProps>(); // Aplica a tipagem
 
   const handleNavigate = () => {
     navigation.navigate("CadastrarMolde"); // Navega para outra página
@@ -26,12 +30,11 @@ export function Maquina() {
       ))}
 
       {/* Botão que leva para outra página */}
-      <Button title="Cadastrar Molde" onPress={handleNavigate} />
+      <TouchableOpacity style={styles.botao} onPress={handleNavigate}>
+        <Text style={styles.textoBotao}>Cadastro Molde</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 export default Maquina;
-
-
-

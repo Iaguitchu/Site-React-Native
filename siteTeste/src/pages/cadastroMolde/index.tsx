@@ -1,7 +1,11 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { NavegacaoTelas } from "../../types"; // Importa os tipos
 import { styles } from "../cadastroMolde/styles";
+
+type NavigationProps = StackNavigationProp<NavegacaoTelas, "CadastrarMolde">;
 
 export function CadastrarMolde() {
   const navigation = useNavigation(); // Para voltar para a tela anterior

@@ -20,7 +20,6 @@ export const styles = StyleSheet.create({
     borderRadius: 8, // Borda arredondada
     elevation: 3, // Sombra no Android
     shadowColor: "#000", // Sombra no iOS
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
