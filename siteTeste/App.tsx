@@ -3,6 +3,7 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Maquina from "./src/pages/home";
 import CadastrarMolde from "./src/pages/cadastroMolde";
+import Agenda from "./src/pages/agenda"; 
 import { NavegacaoTelas } from "./src/types";
 import { StatusBar } from "react-native"; // Importando StatusBar
 
@@ -29,6 +30,7 @@ export default function App() {
             headerTintColor: "#fff",
           }}
         >
+          <Stack.Screen name="Agenda" component={Agenda} />
           <Stack.Screen name="Maquina" component={Maquina} />
           <Stack.Screen name="CadastrarMolde" component={CadastrarMolde} />
         </Stack.Navigator>

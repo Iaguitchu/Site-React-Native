@@ -3,11 +3,18 @@ import { View, Text, Button } from "react-native";
 import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
-import { Picker } from "@react-native-picker/picker";
-import Lp from "../componentes/listaPlana";
+import { useRoute } from "@react-navigation/native";
 
 LocaleConfig.locales["pt-br"] = ptBR;
 LocaleConfig.defaultLocale = "pt-br";
+
+type Parametros = {
+  op: string;
+  serie: string;
+  color: string;
+  moldes2:{[key: string]: [string, string]};
+};
+
 
 export function Agenda() {
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -17,11 +24,17 @@ export function Agenda() {
   const [savedIntervals, setSavedIntervals] = useState<{ start: string; end: string; color: string }[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
+  const route = useRoute();
+  const { op, serie, color, moldes2 } = route.params as Parametros;
+
+  console.log(op, serie, color, moldes2[1])
+ 
+
   const moldes = [
-    { id: "01", desc: "Molde Uva 20cm", color: "#FF5733", dataInicio: '2025-02-17', dataFim: '2025-02-19'},
-    { id: "02", desc: "Molde Tapoer", color: "#33FF57", dataInicio: null, dataFim: null}, 
-    { id: "03", desc: "Bandeja de Ovo", color: "#3357FF", dataInicio: null, dataFim: null},
-    { id: "04", desc: "Bandeja de Ovo2", color: "red",  dataInicio: null, dataFim: null},
+    { id: "01", desc: `${moldes2[0][0]}`, color: "#FF5733", dataInicio: '2025-02-17', dataFim: '2025-02-19'},
+    { id: "02", desc: `${moldes2[1][0]}`, color: "#33FF57", dataInicio: null, dataFim: null}, 
+    { id: "03", desc: `${moldes2[2][0]}`, color: "#3357FF", dataInicio: null, dataFim: null},
+    { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
   ];
 
   const onDayPress = (day: DateData) => {
@@ -125,7 +138,7 @@ export function Agenda() {
     });
   }, []); // [] só roda quando a pagina carrega
 
-  console.log(markedDates)
+  // console.log(markedDates)
   
   return (
     

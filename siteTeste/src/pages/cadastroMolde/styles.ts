@@ -3,18 +3,19 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#121212",
+    overflow: 'hidden'
   },
   title: {
+    marginTop: 10,
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: 'white'
   },
   botao: {
-    marginTop: 20,
-    backgroundColor: "#007bff", // Cor azul
+    marginTop:150,
+    backgroundColor: "#4fff02", // Cor azul
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 8, // Borda arredondada
@@ -24,9 +25,20 @@ export const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   textoBotao: {
-    color: "#fff", // Cor branca
+    color: "black", // Cor branca
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
   },
+
+  input:{
+    backgroundColor: '#424242',
+    width: 200,
+    height: 50,
+    borderRadius: 8,
+    padding: 10,
+    color: 'white',
+    marginTop: 20
+
+  }
 });

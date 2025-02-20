@@ -1,5 +1,6 @@
 export type NavegacaoTelas = {
-    Maquina: undefined;
-    CadastrarMolde: undefined;
-  };
-  
+  Maquina: undefined;
+  Agenda: { op: string; serie: string; color: string; moldes2:[string, string][]; };
+  CadastrarMolde: undefined;
+};
+
