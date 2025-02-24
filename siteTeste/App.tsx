@@ -28,6 +28,7 @@ export default function App() {
           screenOptions={{
             headerStyle: { backgroundColor: "#121212" },
             headerTintColor: "#fff",
+            // headerShown:false
           }}
         >
           <Stack.Screen name="Agenda" component={Agenda} />
