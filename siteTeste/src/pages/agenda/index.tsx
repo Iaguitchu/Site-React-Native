@@ -4,6 +4,7 @@ import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
 import { useRoute } from "@react-navigation/native";
+import { ScrollView } from "react-native-gesture-handler";
 
 LocaleConfig.locales["pt-br"] = ptBR;
 LocaleConfig.defaultLocale = "pt-br";
@@ -35,6 +36,9 @@ export function Agenda() {
     { id: "02", desc: `${moldes2[1][0]}`, color: "#33FF57", dataInicio: null, dataFim: null}, 
     { id: "03", desc: `${moldes2[2][0]}`, color: "#3357FF", dataInicio: null, dataFim: null},
     { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
+    // { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
+    // { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
+    // { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
   ];
 
  
@@ -150,25 +154,39 @@ export function Agenda() {
   
 
   useEffect(() => {
-    moldes.forEach((datas) => { 
-      if (datas.dataInicio && datas.dataFim) {
-        atualizaCalendario([{ start: datas.dataInicio, end: datas.dataFim, color: datas.color }]);
-      }
-    });
-  }, []); // [] só roda quando a pagina carrega
-
-  // console.log(markedDates)
+    // Filtra moldes que já têm dataInicio e dataFim
+    const moldesIniciais = moldes
+      .filter(molde => molde.dataInicio && molde.dataFim)
+      .map(molde => ({
+        start: molde.dataInicio!,
+        end: molde.dataFim!,
+        color: molde.color
+      }));
+  
+    // Atualiza o estado `savedIntervals`
+    setSavedIntervals(prev => [...prev, ...moldesIniciais]);
+  
+    // Atualiza o calendário com esses moldes
+    atualizaCalendario(moldesIniciais);
+  }, []); // Executa apenas ao carregar a tela
   
   return (
     
+    <ScrollView>
     <View style={styles.container}>
 
-      <View style={styles.moldes} >
-      {moldes.map((molde) => (
-        <Text 
-        key={molde.id} style={{ color: molde.color}} onPress={() => setSelectedMold(molde)}> {molde.desc} </Text> 
-      ))}
+      <View style={styles.grupoMoldes}>
+        <View style={styles.moldes} >
+        {moldes.map((molde) => (
+          <Text
+          key={molde.id} style={{ color: molde.color, padding: 5}} onPress={() => setSelectedMold(molde)}> {molde.desc} </Text> 
+        ))}
+        </View>
+
+        <Text style={styles.moldesCadastrados}> Ola mundo</Text>
       </View>
+
+      
       <Calendar
   style={styles.calendar}
   markingType="multi-period"
@@ -192,8 +210,16 @@ export function Agenda() {
         {startDate && !endDate ? `Início: ${startDate}` : ""}
         {startDate && endDate ? `Início: ${startDate}  |  Fim: ${endDate}` : ""}
       </Text>
+
+      <View style={styles.moldes} >
+        {savedIntervals.map((molde) => (
+          <Text
+          key={molde.start} style={{ color: molde.color, padding: 5}}> {`${molde.start} - ${ molde.end}`} </Text> 
+        ))}
+        </View>
       
     </View>
+    </ScrollView>
   );
 }
 

@@ -6,11 +6,11 @@ export const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: "center",
         padding: 10,
-        backgroundColor:"#181818"
+        backgroundColor:"#181818",
+        overflow: "scroll" 
   },
   calendar:{
     backgroundColor:"transparent",
-    marginTop:40,
   },
   selected:{
     color:"#fff",
@@ -22,9 +22,22 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
   },
   moldes:{
-    marginTop: 60,
-    marginLeft: 100,
-    // flex: 1,
+
+    marginTop: 20,
+    flex: 1,
+    // backgroundColor: 'red'
+    //flexDirection: 'row'
     // justifyContent: "center",
+  },
+  grupoMoldes:{    
+  flex: 0,
+  flexDirection: 'row',
+  height: 150,
+  // backgroundColor: "red"
+  },
+  moldesCadastrados:{
+    color: 'white',
+    flex: 1,
+    marginTop: 60,
   }
 });
