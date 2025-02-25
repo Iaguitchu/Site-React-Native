@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal } from "react-native";
+import { View, Text, Button, Modal, Image, TouchableOpacity } from "react-native";
 import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
@@ -220,16 +220,31 @@ export function Agenda() {
       />
 
       <Text style={styles.selected}>
-        {startDate && !endDate ? `Início: ${startDate}` : ""}
+        {startDate && !endDate ? `Iníci o: ${startDate}` : ""}
         {startDate && endDate ? `Início: ${startDate}  |  Fim: ${endDate}` : ""}
       </Text>
 
-      <View style={styles.moldes} >
-        {savedIntervals.map((molde) => (
-          <Text
-          key={molde.start} style={{ color: molde.color, padding: 5}} onPress={() => {setVisivel(true); setTextoModal(`${molde.start} - ${ molde.end}`)}}> {`${molde.start} - ${ molde.end}`} </Text> 
-        ))}
-        </View>
+  
+  
+  
+  <View style={styles.moldes}>
+  {savedIntervals.map((molde) => (
+    <TouchableOpacity
+      key={molde.start}
+      style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
+      onPress={() => { setVisivel(true); setTextoModal(`${molde.start} - ${molde.end}`); }}
+    >
+      <Text style={{ color: molde.color, fontSize: 16 }}>
+        {`${molde.start} - ${molde.end}`}
+      </Text>
+
+      <Image
+         source={require("../../imagens/editar.png")}
+        style={{ width: 20, height: 20, marginLeft: 10 }}
+      />
+    </TouchableOpacity>
+  ))}
+</View>
       
     </View>
     </ScrollView>
