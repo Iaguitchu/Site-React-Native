@@ -22,13 +22,13 @@ export function Agenda() {
   const [selectedMold, setSelectedMold] = useState<{ id: string; color: string } | null>(null);
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
   const [savedIntervals, setSavedIntervals] = useState<{ start: string; end: string; color: string }[]>([]);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  // const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const route = useRoute();
   const { op, serie, color, moldes2 } = route.params as Parametros;
 
-  console.log(op, serie, color, moldes2[1])
- 
+  // console.log(op, serie, color, moldes2[1])
+
 
   const moldes = [
     { id: "01", desc: `${moldes2[0][0]}`, color: "#FF5733", dataInicio: '2025-02-17', dataFim: '2025-02-19'},
@@ -37,16 +37,19 @@ export function Agenda() {
     { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
   ];
 
+ 
+
   const onDayPress = (day: DateData) => {
     if (!selectedMold) {
       alert("Selecione um molde antes de escolher as datas!");
       return;
     }
   
-    if (selectedDays.includes(day.dateString)) {
-      alert("Esse dia já está selecionado para outro molde!");
-      return;
-    }
+    // if (selectedDays.includes(day.dateString)) {
+    //   alert("Esse dia já está selecionado para outro molde!");
+    //   console.log("estou aqui")
+    //   return;
+    // }
   
     if (!startDate) {
       setStartDate(day.dateString);
@@ -64,15 +67,15 @@ export function Agenda() {
       let teste1 = new Date(startDate)
       let teste2 = new Date(day.dateString)
 
-      while(teste1 <= teste2){
-        let dateStr = teste1.toISOString().split("T")[0];
-        if(selectedDays.includes(dateStr)){
-          alert(`Dia ${dateStr} já cadastrado`);
-          setStartDate(null)
-          return;
-        }
-        teste1.setDate(teste1.getDate() + 1);
-      }
+      // while(teste1 <= teste2){
+      //   let dateStr = teste1.toISOString().split("T")[0];
+      //   if(selectedDays.includes(dateStr)){
+      //     alert(`Dia ${dateStr} já cadastrado`);
+      //     setStartDate(null)
+      //     return;
+      //   }
+      //   teste1.setDate(teste1.getDate() + 1);
+      // }
 
       setEndDate(day.dateString);
       saveInterval(startDate, day.dateString, selectedMold.color);
@@ -87,48 +90,64 @@ export function Agenda() {
   };
   
   const saveInterval = (start: string, end: string, color: string) => {
+    // Filtra moldes com dataInicio e transforma no formato correto
+    const teste = moldes
+      .filter(molde => molde.dataInicio !== null) 
+      .map(molde => ({ start: molde.dataInicio, end: molde.dataFim, color: molde.color }));
+
     const newInterval = { start, end, color };
-    const updatedIntervals = [...savedIntervals, newInterval];
+    const combinedIntervals = [...savedIntervals, newInterval];
+
+    // Filtra os moldes que já existem para evitar repetição
+    const uniqueMoldes = teste.filter(t => 
+      !combinedIntervals.some(interval => 
+        interval.start === t.start && interval.end === t.end && interval.color === t.color
+      )
+    );
+
+    // Cria um novo array garantindo que não há duplicação
+    const updatedIntervals = [...combinedIntervals, ...uniqueMoldes];
+
     setSavedIntervals(updatedIntervals);
     atualizaCalendario(updatedIntervals);
-  };
+};
 
+
+  console.log(savedIntervals)
   const atualizaCalendario = (intervals: { start: string; end: string; color: string }[]) => {
-    let newMarkedDates: { [key: string]: any } = { ...markedDates };
-    let allSelectedDays = [...selectedDays];
-
+    let newMarkedDates: { [key: string]: { periods: { color: string; startingDay: boolean; endingDay: boolean }[] } } = {}; // Mantém os períodos anteriores corretamente
+    
+    
     intervals.forEach(({ start, end, color }) => {
       let currentDate = new Date(start);
       let finalDate = new Date(end);
-
+  
       while (currentDate <= finalDate) {
         let dateStr = currentDate.toISOString().split("T")[0];
-        newMarkedDates[dateStr] = {
-          startinDay: true,
-          color: color,
-          textColor: "white",
-        };
-
-        allSelectedDays.push(dateStr);
+  
+        // Se a data já existe, preservamos os períodos anteriores
+        if (!newMarkedDates[dateStr]) {
+          newMarkedDates[dateStr] = { periods: [] };
+        }
+          newMarkedDates[dateStr].periods.push({
+            color: color,
+            startingDay: dateStr === start,
+            endingDay: dateStr === end,
+          });
+        // }
+  
+        // selectedDays.push(dateStr);
+       
         currentDate.setDate(currentDate.getDate() + 1);
       }
-
-      newMarkedDates[start] = {
-        startingDay: true,
-        color: color,
-        textColor: "white",
-      };
-
-      newMarkedDates[end] = {
-        endingDay: true,
-        color: color,
-        textColor: "white",
-      };
     });
-
+  
     setMarkedDates(newMarkedDates);
-    setSelectedDays(allSelectedDays);
+    // console.log(newMarkedDates)
+    // setSelectedDays([...new Set(selectedDays)]); // Remove duplicatas
   };
+  
+  
 
   useEffect(() => {
     moldes.forEach((datas) => { 
@@ -151,11 +170,11 @@ export function Agenda() {
       ))}
       </View>
       <Calendar
-        style={styles.calendar}
-        markingType="period"
-        markedDates={markedDates}
-        onDayPress={onDayPress}
-        minDate={new Date().toDateString()}
+  style={styles.calendar}
+  markingType="multi-period"
+  markedDates={markedDates}
+  onDayPress={onDayPress}
+  minDate={new Date().toDateString()}
         theme={{
           textMonthFontSize: 18,
           monthTextColor: "#E8E8E8",
