@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, Modal } from "react-native";
 import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
@@ -27,6 +27,9 @@ export function Agenda() {
 
   const route = useRoute();
   const { op, serie, color, moldes2 } = route.params as Parametros;
+
+  const [visivel, setVisivel] = useState(false)
+  const [textoModal, setTextoModal] = useState('')
 
   // console.log(op, serie, color, moldes2[1])
 
@@ -171,6 +174,8 @@ export function Agenda() {
   }, []); // Executa apenas ao carregar a tela
   
   return (
+
+    
     
     <ScrollView>
     <View style={styles.container}>
@@ -183,7 +188,15 @@ export function Agenda() {
         ))}
         </View>
 
-        <Text style={styles.moldesCadastrados}> Ola mundo</Text>
+        <Text style={styles.moldesCadastrados} onPress={() => {setVisivel(true); setTextoModal('teste')}}>ola mundo</Text>
+        
+        <Modal  visible={visivel}> 
+        <View>
+            <Text style ={{marginTop:100}} onPress={() => {setVisivel(false)}}> {textoModal} </Text>
+        </View>  
+          </Modal>
+        
+        
       </View>
 
       
@@ -214,7 +227,7 @@ export function Agenda() {
       <View style={styles.moldes} >
         {savedIntervals.map((molde) => (
           <Text
-          key={molde.start} style={{ color: molde.color, padding: 5}}> {`${molde.start} - ${ molde.end}`} </Text> 
+          key={molde.start} style={{ color: molde.color, padding: 5}} onPress={() => {setVisivel(true); setTextoModal(`${molde.start} - ${ molde.end}`)}}> {`${molde.start} - ${ molde.end}`} </Text> 
         ))}
         </View>
       
@@ -223,4 +236,4 @@ export function Agenda() {
   );
 }
 
-export default Agenda;
+export default Agenda; 
