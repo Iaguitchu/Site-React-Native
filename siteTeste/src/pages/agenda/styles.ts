@@ -39,5 +39,12 @@ export const styles = StyleSheet.create({
     color: 'white',
     flex: 1,
     marginTop: 60,
+  },
+  modal:{
+    backgroundColor: "#181818",
+    flex: 1, justifyContent: "center", alignItems: "center"
+  },
+  caracterModal:{
+    color: 'white'
   }
 });

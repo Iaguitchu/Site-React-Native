@@ -5,6 +5,7 @@ import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
 import { useRoute } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 LocaleConfig.locales["pt-br"] = ptBR;
 LocaleConfig.defaultLocale = "pt-br";
@@ -29,7 +30,28 @@ export function Agenda() {
   const { op, serie, color, moldes2 } = route.params as Parametros;
 
   const [visivel, setVisivel] = useState(false)
-  const [textoModal, setTextoModal] = useState('')
+  const [textoModalStart, setTextoModalStart] = useState('')
+  const [textoModalEnd, setTextoModalEnd] = useState('')
+  
+  //calendario modal
+  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [mostrarPicker, setMostrarPicker] = useState(false);
+
+  const [dataSelecionada2, setDataSelecionada2] = useState("");
+  const [mostrarPicker2, setMostrarPicker2] = useState(false);
+
+
+  const selecionarData = (date) => {
+    setDataSelecionada(date.toISOString().split("T")[0]);
+    setMostrarPicker(false);
+  };
+
+
+  const selecionarData2 = (date) => {
+    setDataSelecionada2(date.toISOString().split("T")[0]);
+    setMostrarPicker2(false);
+  };
+
 
   // console.log(op, serie, color, moldes2[1])
 
@@ -153,6 +175,23 @@ export function Agenda() {
     // console.log(newMarkedDates)
     // setSelectedDays([...new Set(selectedDays)]); // Remove duplicatas
   };
+
+
+  const atualizarIntervalo = (startAntigo: string, endAntigo: string, novoStart: string, novoEnd: string) => {
+    // Percorre o array e altera apenas o item que tem as datas antigas
+    const novoArray = savedIntervals.map(interval => {
+      if (interval.start === startAntigo && interval.end === endAntigo) {
+        return { ...interval, start: novoStart, end: novoEnd };
+      }
+      return interval; // Mantém os outros intervalos inalterados
+    });
+  
+    // Atualiza o estado com os novos valores
+    setSavedIntervals(novoArray);
+    atualizaCalendario(novoArray);
+    setVisivel(false)
+  };
+  
   
   
 
@@ -166,7 +205,7 @@ export function Agenda() {
         color: molde.color
       }));
   
-    // Atualiza o estado `savedIntervals`
+    // Atualiza o estado savedIntervals
     setSavedIntervals(prev => [...prev, ...moldesIniciais]);
   
     // Atualiza o calendário com esses moldes
@@ -187,13 +226,47 @@ export function Agenda() {
           key={molde.id} style={{ color: molde.color, padding: 5}} onPress={() => setSelectedMold(molde)}> {molde.desc} </Text> 
         ))}
         </View>
-
-        <Text style={styles.moldesCadastrados} onPress={() => {setVisivel(true); setTextoModal('teste')}}>ola mundo</Text>
         
         <Modal  visible={visivel}> 
-        <View>
-            <Text style ={{marginTop:100}} onPress={() => {setVisivel(false)}}> {textoModal} </Text>
-        </View>  
+        <View style ={styles.modal}>
+          
+          <Text style= {{marginTop:100, color:"white", fontSize: 18}}>Data Atual</Text>
+          <Text style ={{marginTop:10, color:"white", fontSize: 18}} onPress={() => {setVisivel(false)}}> {`${textoModalStart} - ${textoModalEnd}`} </Text>
+
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <Button title="Selecionar Data de Início" onPress={() => setMostrarPicker(true)} />
+          
+                <DateTimePickerModal
+                  isVisible={mostrarPicker}
+                  mode="date"
+                  onConfirm={selecionarData}
+                  onCancel={() => setMostrarPicker(false)}
+                  isDarkModeEnabled ={true}
+                />
+          
+                <Text style={{ marginTop: 20, fontSize: 18, color:'white' }}>
+                  Nova data de Início: {dataSelecionada}
+                </Text>
+
+                <View style={{marginTop: 20}}>
+                  <Button  title="Selecionar Data de Termino" onPress={() => setMostrarPicker2(true)} />
+
+                  <DateTimePickerModal
+                  isVisible={mostrarPicker2}
+                  mode="date"
+                  onConfirm={selecionarData2}
+                  onCancel={() => setMostrarPicker2(false)}
+                  isDarkModeEnabled ={true}
+                />
+          
+                <Text style={{ marginTop: 20, fontSize: 18, color:'white' }}>
+                  Nova data de Termino: {dataSelecionada2}
+                </Text>
+                </View>
+
+                <Button title= "enviar" onPress={() => atualizarIntervalo(textoModalStart, textoModalEnd, dataSelecionada, dataSelecionada2)}></Button>
+            </View>
+          </View>
           </Modal>
         
         
@@ -232,7 +305,7 @@ export function Agenda() {
     <TouchableOpacity
       key={molde.start}
       style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
-      onPress={() => { setVisivel(true); setTextoModal(`${molde.start} - ${molde.end}`); }}
+      onPress={() => { setVisivel(true); setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`); }}
     >
       <Text style={{ color: molde.color, fontSize: 16 }}>
         {`${molde.start} - ${molde.end}`}
