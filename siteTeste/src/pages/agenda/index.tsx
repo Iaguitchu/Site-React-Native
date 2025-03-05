@@ -5,7 +5,10 @@ import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
 import { useRoute } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+
+
+
 
 LocaleConfig.locales["pt-br"] = ptBR;
 LocaleConfig.defaultLocale = "pt-br";
@@ -34,22 +37,30 @@ export function Agenda() {
   const [textoModalEnd, setTextoModalEnd] = useState('')
   
   //calendario modal
-  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [dataInicio, setDataInicio] = useState(new Date());
+  const[dataInicioFormatada, setDataInicioFormatada] = useState(new Date().toISOString().split("T")[0]);
   const [mostrarPicker, setMostrarPicker] = useState(false);
+  
 
-  const [dataSelecionada2, setDataSelecionada2] = useState("");
+  const [dataFim, setDataFim] = useState(new Date());
+  const[dataFimFormatada, setDataFimFormatada] = useState(new Date().toISOString().split("T")[0]);
   const [mostrarPicker2, setMostrarPicker2] = useState(false);
 
 
+
+
+
   const selecionarData = (date) => {
-    setDataSelecionada(date.toISOString().split("T")[0]);
-    setMostrarPicker(false);
+    setDataInicio(date);
+    setDataInicioFormatada(date.toISOString().split("T")[0]);
+    // setMostrarPicker(false);
   };
 
 
   const selecionarData2 = (date) => {
-    setDataSelecionada2(date.toISOString().split("T")[0]);
-    setMostrarPicker2(false);
+    setDataFim(date)
+    setDataFimFormatada(date.toISOString().split("T")[0]);
+    // setMostrarPicker2(false);
   };
 
 
@@ -234,37 +245,51 @@ export function Agenda() {
           <Text style ={{marginTop:10, color:"white", fontSize: 18}} onPress={() => {setVisivel(false)}}> {`${textoModalStart} - ${textoModalEnd}`} </Text>
 
           <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Button title="Selecionar Data de Início" onPress={() => setMostrarPicker(true)} />
-          
-                <DateTimePickerModal
-                  isVisible={mostrarPicker}
-                  mode="date"
-                  onConfirm={selecionarData}
-                  onCancel={() => setMostrarPicker(false)}
-                  isDarkModeEnabled ={true}
-                />
+          <Button title="Selecionar Data de Início" onPress={() => setMostrarPicker(true)} />
+
+                {mostrarPicker && (
+                  <DateTimePicker
+                    value={dataInicio}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setMostrarPicker(false);
+                      if (selectedDate) selecionarData(selectedDate);
+                    }}
+                  />
+                )}
           
                 <Text style={{ marginTop: 20, fontSize: 18, color:'white' }}>
-                  Nova data de Início: {dataSelecionada}
+                  Nova data de Início: {dataInicioFormatada}
                 </Text>
 
                 <View style={{marginTop: 20}}>
-                  <Button  title="Selecionar Data de Termino" onPress={() => setMostrarPicker2(true)} />
+                <Button title="Selecionar Data de Termino" onPress={() => setMostrarPicker2(true)} />
 
-                  <DateTimePickerModal
-                  isVisible={mostrarPicker2}
-                  mode="date"
-                  onConfirm={selecionarData2}
-                  onCancel={() => setMostrarPicker2(false)}
-                  isDarkModeEnabled ={true}
-                />
+                {mostrarPicker2 && (
+                  <DateTimePicker
+                    value={dataFim}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setMostrarPicker2(false);
+                      if (selectedDate) selecionarData2(selectedDate);
+                    }}
+                  />
+                )}
           
                 <Text style={{ marginTop: 20, fontSize: 18, color:'white' }}>
-                  Nova data de Termino: {dataSelecionada2}
+                  Nova data de Termino: {dataFimFormatada}
                 </Text>
                 </View>
 
-                <Button title= "enviar" onPress={() => atualizarIntervalo(textoModalStart, textoModalEnd, dataSelecionada, dataSelecionada2)}></Button>
+                <Button title= "enviar" onPress={() =>{
+                if(dataInicioFormatada < dataFimFormatada){
+                  atualizarIntervalo(textoModalStart, textoModalEnd, dataInicioFormatada, dataFimFormatada)
+                }
+                else{
+                  alert("Data de Início não pode ser maior que a data de Término")}
+                }}></Button>
             </View>
           </View>
           </Modal>
@@ -305,7 +330,7 @@ export function Agenda() {
     <TouchableOpacity
       key={molde.start}
       style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
-      onPress={() => { setVisivel(true); setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`); }}
+      onPress={() => { setVisivel(true); setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`), setDataInicio(new Date(molde.start)), setDataFim(new Date(molde.end));}}
     >
       <Text style={{ color: molde.color, fontSize: 16 }}>
         {`${molde.start} - ${molde.end}`}
