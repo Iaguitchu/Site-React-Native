@@ -27,7 +27,6 @@ export function Agenda() {
   const [selectedMold, setSelectedMold] = useState<{ id: string; color: string } | null>(null);
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
   const [savedIntervals, setSavedIntervals] = useState<{ start: string; end: string; color: string }[]>([]);
-  // const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const route = useRoute();
   const { op, serie, color, moldes2 } = route.params as Parametros;
@@ -38,30 +37,38 @@ export function Agenda() {
   
   //calendario modal
   const [dataInicio, setDataInicio] = useState(new Date());
-  const[dataInicioFormatada, setDataInicioFormatada] = useState(new Date().toISOString().split("T")[0]);
+  const [dataInicioFormatada, setDataInicioFormatada] = useState(new Date().toISOString().split("T")[0]);
   const [mostrarPicker, setMostrarPicker] = useState(false);
-  
 
   const [dataFim, setDataFim] = useState(new Date());
   const[dataFimFormatada, setDataFimFormatada] = useState(new Date().toISOString().split("T")[0]);
   const [mostrarPicker2, setMostrarPicker2] = useState(false);
 
 
+  const selecionarData = (date: Date) => {
+    const [year, month, day] = date.toISOString().split("T")[0].split("-").map(Number);
+    
+    // Criar a data sem ajuste de fuso horário
+    const localDate = new Date(year, month - 1, day); 
+
+    setDataInicioFormatada(localDate.toISOString().split("T")[0]); // Salvar no formato correto
+    setDataInicio(localDate);
+};
 
 
 
-  const selecionarData = (date) => {
-    setDataInicio(date);
-    setDataInicioFormatada(date.toISOString().split("T")[0]);
-    // setMostrarPicker(false);
-  };
 
 
-  const selecionarData2 = (date) => {
-    setDataFim(date)
-    setDataFimFormatada(date.toISOString().split("T")[0]);
-    // setMostrarPicker2(false);
-  };
+const selecionarData2 = (date: Date) => {
+  const [year, month, day] = date.toISOString().split("T")[0].split("-").map(Number);
+  
+  // Criar a data sem ajuste de fuso horário
+  const localDate = new Date(year, month - 1, day); 
+
+  setDataFimFormatada(localDate.toISOString().split("T")[0]); // Salvar no formato correto
+  setDataFim(localDate);
+};
+
 
 
   // console.log(op, serie, color, moldes2[1])
@@ -76,8 +83,6 @@ export function Agenda() {
     // { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
     // { id: "04", desc: `${moldes2[3][0]}`, color: "red",  dataInicio: null, dataFim: null},
   ];
-
- 
 
   const onDayPress = (day: DateData) => {
     if (!selectedMold) {
@@ -153,7 +158,7 @@ export function Agenda() {
 };
 
 
-  console.log(savedIntervals)
+  // console.log(savedIntervals)
   const atualizaCalendario = (intervals: { start: string; end: string; color: string }[]) => {
     let newMarkedDates: { [key: string]: { periods: { color: string; startingDay: boolean; endingDay: boolean }[] } } = {}; // Mantém os períodos anteriores corretamente
     
@@ -253,15 +258,17 @@ export function Agenda() {
                     mode="date"
                     display="default"
                     onChange={(event, selectedDate) => {
+                      console.log('mostrarPicker',selectedDate)
                       setMostrarPicker(false);
                       if (selectedDate) selecionarData(selectedDate);
                     }}
                   />
                 )}
           
-                <Text style={{ marginTop: 20, fontSize: 18, color:'white' }}>
-                  Nova data de Início: {dataInicioFormatada}
-                </Text>
+          <Text style={{ marginTop: 20, fontSize: 18, color: 'white' }}>
+              Nova data de Início: {dataInicioFormatada}
+          </Text>
+
 
                 <View style={{marginTop: 20}}>
                 <Button title="Selecionar Data de Termino" onPress={() => setMostrarPicker2(true)} />
@@ -318,7 +325,7 @@ export function Agenda() {
       />
 
       <Text style={styles.selected}>
-        {startDate && !endDate ? `Iníci o: ${startDate}` : ""}
+        {startDate && !endDate ? `Início: ${startDate}` : ""}
         {startDate && endDate ? `Início: ${startDate}  |  Fim: ${endDate}` : ""}
       </Text>
 
@@ -330,7 +337,7 @@ export function Agenda() {
     <TouchableOpacity
       key={molde.start}
       style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
-      onPress={() => { setVisivel(true); setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`), setDataInicio(new Date(molde.start)), setDataFim(new Date(molde.end));}}
+      onPress={() => {setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`), selecionarData(new Date(molde.start)), selecionarData2(new Date(molde.end)), setVisivel(true);}}
     >
       <Text style={{ color: molde.color, fontSize: 16 }}>
         {`${molde.start} - ${molde.end}`}
