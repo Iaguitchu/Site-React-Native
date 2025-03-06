@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal, Image, TouchableOpacity } from "react-native";
+import { View, Text, Button, Modal, Image, TouchableOpacity, TextInput } from "react-native";
 import { styles } from "../agenda/styles";
 import { Calendar, DateData, LocaleConfig } from "react-native-calendars";
 import { ptBR } from "../utils/localeCalendarConfig";
@@ -43,6 +43,34 @@ export function Agenda() {
   const [dataFim, setDataFim] = useState(new Date());
   const[dataFimFormatada, setDataFimFormatada] = useState(new Date().toISOString().split("T")[0]);
   const [mostrarPicker2, setMostrarPicker2] = useState(false);
+
+
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+  const [moldeParaExcluir, setMoldeParaExcluir] = useState<{ start: string; end: string } | null>(null);
+  const [textoConfirmacao, setTextoConfirmacao] = useState("");
+
+
+  const solicitarExclusao = (start: string, end: string) => {
+    setMoldeParaExcluir({ start, end });
+    setTextoConfirmacao(""); // Limpa o campo de confirmação
+    setConfirmarExclusao(true);
+  };
+
+  const excluirMolde = () => {
+    if (textoConfirmacao.toLowerCase() !== "excluir") {
+      alert("Digite 'excluir' corretamente para confirmar.");
+      return;
+    }
+  
+    const novoArray = savedIntervals.filter(
+      (interval) => interval.start !== moldeParaExcluir?.start || interval.end !== moldeParaExcluir?.end
+    );
+  
+    setSavedIntervals(novoArray);
+    atualizaCalendario(novoArray);
+    setConfirmarExclusao(false); // Fecha o modal
+  };
+  
 
 
   const selecionarData = (date: Date) => {
@@ -300,6 +328,32 @@ const selecionarData2 = (date: Date) => {
             </View>
           </View>
           </Modal>
+
+
+          <Modal visible={confirmarExclusao} transparent animationType="slide">
+            <View style={styles.modal}>
+              <Text style={{color:"white", marginBottom:20, fontSize: 22}}> Período: {moldeParaExcluir?.start} - {moldeParaExcluir?.end} </Text>
+              <Text style={{ color: "white", fontSize: 18 }}>Digite "excluir" para confirmar</Text>
+              <TextInput
+                style={{
+                  backgroundColor: "white",
+                  padding: 10,
+                  width: 200,
+                  marginVertical: 10,
+                  borderRadius: 5,
+                  textAlign: "center",
+                }}
+                placeholder="excluir"
+                value={textoConfirmacao}
+                onChangeText={setTextoConfirmacao}
+              />
+
+              
+              <Button title="Confirmar Exclusão" onPress={excluirMolde} />
+              <Button title="Cancelar" color="red" onPress={() => setConfirmarExclusao(false)} />
+            </View>
+          </Modal>
+
         
         
       </View>
@@ -332,24 +386,44 @@ const selecionarData2 = (date: Date) => {
   
   
   
-  <View style={styles.moldes}>
+      <View style={styles.moldes}>
   {savedIntervals.map((molde) => (
-    <TouchableOpacity
-      key={molde.start}
+    <View 
+      key={molde.start} 
       style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
-      onPress={() => {setTextoModalStart(`${molde.start}`); setTextoModalEnd(`${molde.end}`), selecionarData(new Date(molde.start)), selecionarData2(new Date(molde.end)), setVisivel(true);}}
     >
-      <Text style={{ color: molde.color, fontSize: 16 }}>
-        {`${molde.start} - ${molde.end}`}
-      </Text>
+      {/* Touchable para abrir o modal de edição */}
+      <TouchableOpacity
+        style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+        onPress={() => { 
+          setTextoModalStart(`${molde.start}`);
+          setTextoModalEnd(`${molde.end}`);
+          selecionarData(new Date(molde.start));
+          selecionarData2(new Date(molde.end));
+          setVisivel(true);
+        }}
+      >
+        <Text style={{ color: molde.color, fontSize: 16 }}>
+          {`${molde.start} - ${molde.end}`}
+        </Text>
 
-      <Image
-         source={require("../../imagens/editar.png")}
-        style={{ width: 20, height: 20, marginLeft: 10 }}
-      />
-    </TouchableOpacity>
+        <Image
+          source={require("../../imagens/editar.png")}
+          style={{ width: 20, height: 20, marginLeft: 10 }}
+        />
+      </TouchableOpacity>
+
+      {/* Touchable exclusivo para exclusão */}
+      <TouchableOpacity onPress={() => solicitarExclusao(molde.start, molde.end)}>
+        <Image
+          source={require("../../imagens/lixeira.png")}
+          style={{ width: 20, height: 20}}
+        />
+      </TouchableOpacity>
+    </View>
   ))}
 </View>
+
       
     </View>
     </ScrollView>
